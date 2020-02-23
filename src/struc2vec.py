@@ -33,7 +33,7 @@ class Graph():
 
 		with ProcessPoolExecutor(max_workers=self.workers) as executor:
 			job = executor.submit(exec_bfs,self.G,self.workers,self.calcUntilLayer)
-			
+
 			job.result()
 
 		return
@@ -42,7 +42,7 @@ class Graph():
 
 		with ProcessPoolExecutor(max_workers=self.workers) as executor:
 			job = executor.submit(exec_bfs_compact,self.G,self.workers,self.calcUntilLayer)
-			
+
 			job.result()
 
 		return
@@ -51,7 +51,7 @@ class Graph():
 
 		with ProcessPoolExecutor(max_workers=self.workers) as executor:
 			job = executor.submit(preprocess_degreeLists)
-			
+
 			job.result()
 
 		return
@@ -67,7 +67,7 @@ class Graph():
 			degrees_sorted.add(degree)
 			if(degree not in degrees):
 				degrees[degree] = {}
-				degrees[degree]['vertices'] = deque() 
+				degrees[degree]['vertices'] = deque()
 			degrees[degree]['vertices'].append(v)
 		degrees_sorted = np.array(list(degrees_sorted),dtype='int')
 		degrees_sorted = np.sort(degrees_sorted)
@@ -126,11 +126,11 @@ class Graph():
 				job.result()
 				r = futures[job]
 				logging.info("Part {} Completed.".format(r))
-		
+
 		logging.info('Distances calculated.')
 		t1 = time()
 		logging.info('Time : {}m'.format((t1-t0)/60))
-		
+
 		return
 
 
@@ -146,7 +146,7 @@ class Graph():
 		count_calc = 0
 
 		G = self.G
-		vertices = G.keys()
+		vertices = list(G.keys())
 
 		parts = self.workers
 		chunks = partition(vertices,parts)
@@ -161,7 +161,7 @@ class Graph():
 				logging.info("degreeList {} completed.".format(part))
 				part += 1
 
-		
+
 		with ProcessPoolExecutor(max_workers = self.workers) as executor:
 
 			part = 1
@@ -220,26 +220,16 @@ class Graph():
 		if(len(self.G) > 500000):
 
 			with ProcessPoolExecutor(max_workers=1) as executor:
-				job = executor.submit(generate_random_walks_large_graphs,num_walks,walk_length,self.workers,self.G.keys())
+				job = executor.submit(generate_random_walks_large_graphs,num_walks,walk_length,self.workers,list(self.G.keys()))
 
 				job.result()
 
 		else:
 
 			with ProcessPoolExecutor(max_workers=1) as executor:
-				job = executor.submit(generate_random_walks,num_walks,walk_length,self.workers,self.G.keys())
+				job = executor.submit(generate_random_walks,num_walks,walk_length,self.workers,list(self.G.keys()))
 
 				job.result()
 
 
-		return	
-
-
-
-
-
-		
-
-      	
-
-
+		return

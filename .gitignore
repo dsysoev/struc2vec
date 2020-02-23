@@ -2,3 +2,5 @@
 *.pickle
 *.log
 .DS_Store
+random_walks.txt
+.ipynb_checkpoints/

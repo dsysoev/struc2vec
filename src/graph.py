@@ -30,34 +30,34 @@ import operator
 
 
 class Graph(defaultdict):
-  """Efficient basic implementation of nx `Graph' â€“ Undirected graphs with self loops"""  
+  """Efficient basic implementation of nx `Graph' â€“ Undirected graphs with self loops"""
   def __init__(self):
     super(Graph, self).__init__(list)
 
   def nodes(self):
-    return self.keys()
+    return list(self.keys())
 
   def adjacency_iter(self):
-    return self.iteritems()
+    return self.items()
 
   def subgraph(self, nodes={}):
     subgraph = Graph()
-    
+
     for n in nodes:
       if n in self:
         subgraph[n] = [x for x in self[n] if x in nodes]
-        
+
     return subgraph
 
   def make_undirected(self):
-  
+
     t0 = time()
 
     for v in self.keys():
       for other in self[v]:
         if v != other:
           self[other].append(v)
-    
+
     t1 = time()
     #logger.info('make_directed: added missing edges {}s'.format(t1-t0))
 
@@ -68,7 +68,7 @@ class Graph(defaultdict):
     t0 = time()
     for k in iterkeys(self):
       self[k] = list(sorted(set(self[k])))
-    
+
     t1 = time()
     #logger.info('make_consistent: made consistent in {}s'.format(t1-t0))
 
@@ -82,10 +82,10 @@ class Graph(defaultdict):
     t0 = time()
 
     for x in self:
-      if x in self[x]: 
+      if x in self[x]:
         self[x].remove(x)
         removed += 1
-    
+
     t1 = time()
 
     #logger.info('remove_self_loops: removed {} loops in {}s'.format(removed, (t1-t0)))
@@ -96,7 +96,7 @@ class Graph(defaultdict):
       for y in self[x]:
         if x == y:
           return True
-    
+
     return False
 
   def has_edge(self, v1, v2):
@@ -112,7 +112,7 @@ class Graph(defaultdict):
 
   def order(self):
     "Returns the number of nodes in the graph"
-    return len(self)    
+    return len(self)
 
   def number_of_edges(self):
     "Returns the number of nodes in the graph"
@@ -120,16 +120,16 @@ class Graph(defaultdict):
 
   def number_of_nodes(self):
     "Returns the number of nodes in the graph"
-    return self.order() 
+    return self.order()
 
   def gToDict(self):
     d = {}
-    for k,v in self.iteritems():
+    for k,v in self.items():
       d[k] = v
     return d
 
   def printAdjList(self):
-    for key,value in self.iteritems():
+    for key,value in self.items():
       print (key,":",value)
 
 
@@ -150,7 +150,7 @@ def parse_adjacencylist(f):
       row = [introw[0]]
       row.extend(set(sorted(introw[1:])))
       adjlist.extend([row])
-  
+
   return adjlist
 
 def parse_adjacencylist_unchecked(f):
@@ -175,11 +175,11 @@ def load_adjacencylist(file_, undirected=False, chunksize=10000, unchecked=True)
 
   with open(file_) as f:
     with ProcessPoolExecutor(max_workers=cpu_count()) as executor:
-      total = 0 
+      total = 0
       for idx, adj_chunk in enumerate(executor.map(parse_func, grouper(int(chunksize), f))):
           adjlist.extend(adj_chunk)
           total += len(adj_chunk)
-  
+
   t1 = time()
 
   logging.info('Parsed {} edges with {} chunks in {}s'.format(total, idx, t1-t0))
@@ -196,7 +196,7 @@ def load_adjacencylist(file_, undirected=False, chunksize=10000, unchecked=True)
     t1 = time()
     logging.info('Made graph undirected in {}s'.format(t1-t0))
 
-  return G 
+  return G
 
 
 def load_edgelist(file_, undirected=True):
@@ -213,8 +213,8 @@ def load_edgelist(file_, undirected=True):
       else:
         x = l.strip().split()[:2]
         x = int(x[0])
-        G[x] = []  
-  
+        G[x] = []
+
   G.make_consistent()
   return G
 
@@ -230,7 +230,7 @@ def from_networkx(G_input, undirected=True):
     G = Graph()
 
     for idx, x in enumerate(G_input.nodes_iter()):
-        for y in iterkeys(G_input[x]):
+        for y in keys(G_input[x]):
             G[x].append(y)
 
     if undirected:
@@ -258,7 +258,7 @@ def from_numpy(x, undirected=True):
 
 def from_adjlist(adjlist):
     G = Graph()
-    
+
     for row in adjlist:
         node = row[0]
         neighbors = row[1:]
@@ -269,7 +269,7 @@ def from_adjlist(adjlist):
 
 def from_adjlist_unchecked(adjlist):
     G = Graph()
-    
+
     for row in adjlist:
         node = row[0]
         neighbors = row[1:]
@@ -280,8 +280,7 @@ def from_adjlist_unchecked(adjlist):
 
 def from_dict(d):
     G = Graph()
-    for k,v in d.iteritems():
+    for k,v in d.items():
       G[k] = v
 
     return G
-
