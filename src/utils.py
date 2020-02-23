@@ -4,6 +4,8 @@ import logging,inspect
 import pickle
 from itertools import islice
 import os.path
+import networkx as nx
+
 
 dir_f = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 folder_pickles = dir_f+"/../pickles/"
@@ -43,3 +45,39 @@ def saveVariableOnDisk(f,name):
     logging.info('Variable saved. Time: {}m'.format((t1-t0)/60))
 
     return
+
+def load_graph_from_filename(filename, directed=True):
+    with open(filename, 'r') as f:
+        if directed:
+            G = nx.DiGraph()
+        else:
+            G = nx.Graph()
+            
+        for line in f:
+            edge = line.strip().split()
+            if len(edge) == 3:
+                w = float(edge[2])
+            else:
+                w = 1.0
+            G.add_edge(int(edge[0]), int(edge[1]), weight=w)
+    return G
+
+def load_colors_from_filename(filename):
+    with open(filename) as f:
+        colors = {}
+        for line in f.readlines():
+            node, color = line.strip().split()
+            colors[int(node)] = color
+            
+    return colors
+
+def load_graph_and_colors(file_graph, file_colors=None, directed=True):
+    
+    graph = load_graph_from_filename(file_graph, directed=directed)
+    
+    colors = {}
+    if file_colors is not None:
+        colors = load_colors_from_filename(file_colors)
+        
+    return graph, colors
+    
